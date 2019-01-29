@@ -49,6 +49,57 @@ Contact.prototype.fullName = function() {
 };
 
 // ### User / Front-End Logic
+var addressBook = new AddressBook();
+
+function displayContactDetails(addressBookToDisplay) {
+  var contactsList = $("ul#contacts");
+  var htmlForContactsInfo = "";
+  addressBook.contacts.forEach(function(contact){
+    htmlForContactsInfo += "<li id = " + contact.id + ">" + contact.firstName + " " + contact.lastName + "</li>"
+  });
+  contactsList.html(htmlForContactsInfo);
+}; 
+
+function showContact(contactID){
+  var contact = addressBook.findContact(contactID);
+  $(".first-name").html(contact.firstName);
+  $(".last-name").html(contact.lastName);
+  $(".phone-number").html(contact.phoneNumber);
+  $("#show-contact").show();
+  var buttons = $("#buttons");
+  buttons.empty();
+  buttons.append("<button class = 'deleteButton' id =" + contact.id + ">Delete</button>");
+};
+
+function hideContact(contactID){
+  addressBook.deleteContact(contactID);
+  $("#show-contact").hide();
+  displayContactDetails(addressBook);
+};
+
+function attachContactListeners(){
+  $("ul#contacts").on("click", "li", function(){
+    showContact(this.id);
+  }); //end ul#contacts.on("click")
+  $("#buttons").on("click", ".deleteButton", function(){
+    hideContact(this.id)
+
+  }); //end buttons.on("click")
+}; //end function "attachContactListeners"
+
 $(document).ready(function() {
+  $("form#new-contact").submit(function(event) {
+    attachContactListeners();
+    event.preventDefault();
+    var inputtedFirstName = $("#new-first-name").val();
+    var inputtedLastName = $("#new-last-name").val();
+    var inputtedPhoneNumber = $("#new-phone-number").val();
+    $("#new-first-name").val('');
+    $("#new-last-name").val('');
+    $("#new-phone-number").val('');
+    var newContact = new Contact(inputtedFirstName, inputtedLastName, inputtedPhoneNumber);
+    addressBook.addContact(newContact);
+    displayContactDetails(addressBook);
+  });
 
 });
